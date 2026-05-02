@@ -1,13 +1,13 @@
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import { NeuralNetwork } from "./NeuralNetwork";
-
-const headlineLines = [
-  ["We", "Build", "Digital"],
-  ["That", "Performs."],
-];
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 export const Hero = () => {
+  const { t } = useSiteContent();
+  const title = t("hero.title", "We Build Digital That Performs.");
+  const words = title.split(" ");
+  const accentIdx = words.length - 1;
   return (
     <section id="top" className="relative flex min-h-screen items-center justify-center overflow-hidden">
       <div className="absolute inset-0 bg-background" />
@@ -26,31 +26,26 @@ export const Hero = () => {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan opacity-75" />
             <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-cyan" />
           </span>
-          CUSTOM SOFTWARE · WEB · AUTOMATION
+          {t("hero.badge", "CUSTOM SOFTWARE · WEB · AUTOMATION")}
         </motion.div>
 
         <h1 className="font-display text-[clamp(2.75rem,9vw,5.5rem)] font-bold leading-[1.02] tracking-[-0.03em] text-foreground">
-          {headlineLines.map((line, li) => (
-            <span key={li} className="block">
-              {line.map((word, wi) => {
-                const delay = (li === 0 ? 0 : headlineLines[0].length) * 0.08 + wi * 0.08 + 0.15;
-                const isAccent = word === "Performs.";
-                return (
-                  <span key={wi} className="inline-block overflow-hidden align-bottom">
-                    <motion.span
-                      initial={{ y: "110%" }}
-                      animate={{ y: "0%" }}
-                      transition={{ delay, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                      className={`inline-block ${isAccent ? "text-gradient" : ""}`}
-                    >
-                      {word}
-                      {wi < line.length - 1 && "\u00A0"}
-                    </motion.span>
-                  </span>
-                );
-              })}
-            </span>
-          ))}
+          {words.map((word, wi) => {
+            const isAccent = wi === accentIdx;
+            return (
+              <span key={wi} className="inline-block overflow-hidden align-bottom">
+                <motion.span
+                  initial={{ y: "110%" }}
+                  animate={{ y: "0%" }}
+                  transition={{ delay: 0.15 + wi * 0.08, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  className={`inline-block ${isAccent ? "text-gradient" : ""}`}
+                >
+                  {word}
+                  {wi < words.length - 1 && "\u00A0"}
+                </motion.span>
+              </span>
+            );
+          })}
         </h1>
 
         <motion.p
@@ -59,7 +54,7 @@ export const Hero = () => {
           transition={{ delay: 0.7, duration: 0.6 }}
           className="mx-auto mt-6 max-w-xl text-base text-muted-foreground sm:text-lg"
         >
-          NorthVave builds premium websites, custom software, CRMs and automations for businesses that refuse to be average.
+          {t("hero.subtitle", "NorthVave builds premium websites, custom software, CRMs and automations for businesses that refuse to be average.")}
         </motion.p>
 
         <motion.div
@@ -72,14 +67,14 @@ export const Hero = () => {
             href="#work"
             className="shimmer group inline-flex items-center gap-2 rounded-full bg-gradient-primary px-7 py-3.5 text-sm font-semibold text-primary-foreground animate-pulse-glow"
           >
-            See Our Work
+            {t("hero.cta_secondary", "See Our Work")}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </a>
           <a
             href="#contact"
             className="inline-flex items-center gap-2 rounded-full border border-border bg-background/40 px-7 py-3.5 text-sm font-semibold text-foreground backdrop-blur transition-colors hover:border-primary/60 hover:text-primary"
           >
-            Start a Project
+            {t("hero.cta_primary", "Start a Project")}
           </a>
         </motion.div>
       </div>
