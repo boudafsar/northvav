@@ -10,6 +10,7 @@ const screenshot = (url: string) =>
 
 export const PortfolioCard = ({ project, onPreview, index }: Props) => {
   const [loaded, setLoaded] = useState(false);
+  const [errored, setErrored] = useState(false);
   // Vary heights for masonry feel
   const heights = ["h-[220px]", "h-[280px]", "h-[320px]", "h-[260px]"];
   const heightCls = heights[index % heights.length];
@@ -25,16 +26,33 @@ export const PortfolioCard = ({ project, onPreview, index }: Props) => {
     >
       {/* Screenshot */}
       <div className={`relative ${heightCls} overflow-hidden bg-secondary-bg`}>
-        {!loaded && (
-          <div className="absolute inset-0 animate-pulse bg-gradient-to-br from-secondary-bg via-card to-secondary-bg" />
+        {/* Logo fallback — shown while loading or if screenshot fails */}
+        {(!loaded || errored) && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-secondary-bg via-card to-background">
+            <div className="relative flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-primary shadow-[0_0_40px_hsl(var(--primary)/0.4)]">
+              <span className="font-display text-2xl font-bold text-primary-foreground tracking-tight">NV</span>
+              <span className="absolute inset-0 rounded-2xl border border-primary/30 animate-pulse" />
+            </div>
+            <div className="text-center px-4">
+              <p className="font-display text-sm font-semibold text-foreground">{project.name}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                {errored ? "Click to view live" : "Loading preview…"}
+              </p>
+            </div>
+          </div>
         )}
-        <img
-          src={screenshot(project.url)}
-          alt={`${project.name} preview`}
-          loading="lazy"
-          onLoad={() => setLoaded(true)}
-          className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-        />
+        {!errored && (
+          <img
+            src={screenshot(project.url)}
+            alt={`${project.name} preview`}
+            loading="lazy"
+            onLoad={() => setLoaded(true)}
+            onError={() => setErrored(true)}
+            className={`h-full w-full object-cover object-top transition-all duration-700 group-hover:scale-105 ${
+              loaded ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        )}
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent opacity-60 transition-opacity duration-500 group-hover:opacity-90" />
         {/* Hover button */}

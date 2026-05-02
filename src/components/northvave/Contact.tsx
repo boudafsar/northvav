@@ -4,6 +4,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Send, Mail, AtSign } from "lucide-react";
 import { ParticleField } from "./ParticleField";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Name is too short").max(80),
@@ -13,6 +14,7 @@ const schema = z.object({
 });
 
 export const Contact = () => {
+  const { t } = useSiteContent();
   const [form, setForm] = useState({ name: "", email: "", need: "Website", message: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -47,12 +49,12 @@ export const Contact = () => {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <span className="text-xs font-medium uppercase tracking-[0.25em] text-primary">// Contact</span>
+          <span className="text-xs font-medium uppercase tracking-[0.25em] text-primary">{t("contact.eyebrow", "// Contact")}</span>
           <h2 className="mt-3 font-display text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-            Let's Build <span className="text-gradient">Something.</span>
+            <span className="text-gradient">{t("contact.title", "Let's Build Something.")}</span>
           </h2>
           <p className="mx-auto mt-3 max-w-md text-muted-foreground">
-            Tell us what you're working on. We reply to every serious enquiry within 24 hours.
+            {t("contact.subtitle", "Tell us what you're working on. We reply to every serious enquiry within 24 hours.")}
           </p>
         </motion.div>
 
@@ -118,10 +120,10 @@ export const Contact = () => {
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
           <a href="#" className="inline-flex items-center gap-2 transition-colors hover:text-foreground">
-            <AtSign className="h-4 w-4 text-primary" /> @northvave
+            <AtSign className="h-4 w-4 text-primary" /> {t("contact.handle", "@northvave")}
           </a>
-          <a href="mailto:hello@northvave.studio" className="inline-flex items-center gap-2 transition-colors hover:text-foreground">
-            <Mail className="h-4 w-4 text-primary" /> hello@northvave.studio
+          <a href={`mailto:${t("contact.email", "hello@northvave.studio")}`} className="inline-flex items-center gap-2 transition-colors hover:text-foreground">
+            <Mail className="h-4 w-4 text-primary" /> {t("contact.email", "hello@northvave.studio")}
           </a>
         </div>
       </div>

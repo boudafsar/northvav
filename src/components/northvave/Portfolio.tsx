@@ -1,12 +1,16 @@
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useMemo, useState } from "react";
-import { categories, projects, type Project } from "@/data/projects";
+import { categories, type Project } from "@/data/projects";
 import { PortfolioCard } from "./PortfolioCard";
 import { PreviewModal } from "./PreviewModal";
+import { useProjects } from "@/hooks/useProjects";
+import { useSiteContent } from "@/hooks/useSiteContent";
 
 export const Portfolio = () => {
   const [filter, setFilter] = useState("All");
   const [preview, setPreview] = useState<Project | null>(null);
+  const { projects } = useProjects();
+  const { t } = useSiteContent();
 
   const filtered = useMemo(
     () => (filter === "All" ? projects : projects.filter((p) => p.category === filter)),
@@ -24,12 +28,12 @@ export const Portfolio = () => {
           className="mb-12 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end"
         >
           <div>
-            <span className="text-xs font-medium uppercase tracking-[0.25em] text-primary">// Selected Work</span>
+            <span className="text-xs font-medium uppercase tracking-[0.25em] text-primary">{t("portfolio.eyebrow", "// Selected Work")}</span>
             <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-              Work That <span className="text-gradient">Speaks.</span>
+              <span className="text-gradient">{t("portfolio.title", "Work That Speaks.")}</span>
             </h2>
             <p className="mt-3 max-w-xl text-muted-foreground">
-              Live, in-production websites and platforms. Hover any card to preview in a clean frame.
+              {t("portfolio.subtitle", "Live, in-production websites and platforms. Hover any card to preview in a clean frame.")}
             </p>
           </div>
         </motion.div>

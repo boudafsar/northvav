@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ExternalLink, Lock } from "lucide-react";
+import { X, Lock } from "lucide-react";
 import { useEffect } from "react";
 
 type Props = { url: string | null; name?: string; onClose: () => void };
@@ -45,14 +45,6 @@ export const PreviewModal = ({ url, name, onClose }: Props) => {
                 <span className="truncate">northvave.studio/preview/{name?.toLowerCase().replace(/\s+/g, "-") ?? ""}</span>
               </div>
             </div>
-            <a
-              href={url}
-              target="_blank"
-              rel="noreferrer"
-              className="flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary-glow"
-            >
-              Open <ExternalLink className="h-3 w-3" />
-            </a>
           </div>
           {/* Iframe */}
           <div className="relative flex-1 bg-background">

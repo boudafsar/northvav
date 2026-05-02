@@ -1,6 +1,9 @@
 import { Github, Twitter, Linkedin, Instagram } from "lucide-react";
+import { useSiteContent } from "@/hooks/useSiteContent";
+import { Link } from "react-router-dom";
 
 export const Footer = () => {
+  const { t } = useSiteContent();
   return (
     <footer className="relative border-t border-border bg-background py-14">
       <div className="mx-auto max-w-7xl px-6">
@@ -13,7 +16,7 @@ export const Footer = () => {
               </span>
             </div>
             <p className="mt-3 max-w-xs text-sm text-muted-foreground">
-              Building digital that performs.
+              {t("footer.tagline", "Building digital that performs.")}
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -33,6 +36,7 @@ export const Footer = () => {
           <div className="flex gap-6">
             <a href="#" className="transition-colors hover:text-foreground">Privacy</a>
             <a href="#" className="transition-colors hover:text-foreground">Terms</a>
+            <Link to="/admin" className="transition-colors hover:text-foreground opacity-50">Admin</Link>
           </div>
         </div>
       </div>
