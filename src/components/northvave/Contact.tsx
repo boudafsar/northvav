@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Send, Mail, AtSign } from "lucide-react";
 import { ParticleField } from "./ParticleField";
 import { useSiteContent } from "@/hooks/useSiteContent";
+import { supabase } from "@/integrations/supabase/client";
 
 const schema = z.object({
   name: z.string().trim().min(2, "Name is too short").max(80),
@@ -19,7 +20,7 @@ export const Contact = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const parsed = schema.safeParse(form);
     if (!parsed.success) {
@@ -30,11 +31,19 @@ export const Contact = () => {
     }
     setErrors({});
     setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      toast.success("Message received. We'll be in touch within 24 hours.");
-      setForm({ name: "", email: "", need: "Website", message: "" });
-    }, 800);
+    const { error } = await supabase.from("contact_submissions").insert({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      need: parsed.data.need,
+      message: parsed.data.message,
+    });
+    setSubmitting(false);
+    if (error) {
+      toast.error("Could not send. Try again or email us directly.");
+      return;
+    }
+    toast.success("Message received. We'll be in touch within 24 hours.");
+    setForm({ name: "", email: "", need: "Website", message: "" });
   };
 
   return (
