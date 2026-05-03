@@ -5,8 +5,16 @@ import type { Project } from "@/data/projects";
 
 type Props = { project: Project; onPreview: (p: Project) => void; index: number };
 
+const normalizeUrl = (url: string) => {
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
 const screenshot = (url: string) =>
-  `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url&viewport.width=1280&viewport.height=800`;
+  `https://api.microlink.io/?url=${encodeURIComponent(
+    normalizeUrl(url)
+  )}&screenshot=true&meta=false&embed=screenshot.url&viewport.width=1280&viewport.height=800`;
 
 export const PortfolioCard = ({ project, onPreview, index }: Props) => {
   const [loaded, setLoaded] = useState(false);

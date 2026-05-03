@@ -14,7 +14,7 @@ export const Portfolio = () => {
 
   const filtered = useMemo(
     () => (filter === "All" ? projects : projects.filter((p) => p.category === filter)),
-    [filter]
+    [filter, projects]
   );
 
   return (
