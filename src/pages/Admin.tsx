@@ -5,11 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { refreshProjects, useProjects, type DbProject } from "@/hooks/useProjects";
 import { refreshSiteContent, useSiteContent } from "@/hooks/useSiteContent";
 import { toast } from "sonner";
-import { Loader2, LogOut, Plus, Trash2, Save, ExternalLink, ArrowLeft } from "lucide-react";
+import { Loader2, LogOut, Plus, Trash2, Save, ExternalLink, ArrowLeft, Mail, Check } from "lucide-react";
 
 const Admin = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
-  const [tab, setTab] = useState<"projects" | "content">("projects");
+  const [tab, setTab] = useState<"submissions" | "projects" | "content">("submissions");
 
   useEffect(() => {
     document.title = "Admin — NorthVave";
@@ -53,7 +53,7 @@ const Admin = () => {
           </div>
         </div>
         <div className="mx-auto flex max-w-6xl gap-6 px-6">
-          {(["projects", "content"] as const).map((t) => (
+          {(["submissions", "projects", "content"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
@@ -61,7 +61,7 @@ const Admin = () => {
                 tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              {t === "projects" ? "Projects" : "Site Text"}
+              {t === "submissions" ? "Inbox" : t === "projects" ? "Projects" : "Site Text"}
               {tab === t && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-gradient-primary" />}
             </button>
           ))}
@@ -69,8 +69,127 @@ const Admin = () => {
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-10">
-        {tab === "projects" ? <ProjectsTab /> : <ContentTab />}
+        {tab === "submissions" ? <SubmissionsTab /> : tab === "projects" ? <ProjectsTab /> : <ContentTab />}
       </main>
+    </div>
+  );
+};
+
+type Submission = {
+  id: string;
+  name: string;
+  email: string;
+  need: string;
+  message: string;
+  read: boolean;
+  created_at: string;
+};
+
+const SubmissionsTab = () => {
+  const [items, setItems] = useState<Submission[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = async () => {
+    const { data, error } = await supabase
+      .from("contact_submissions")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    setItems((data ?? []) as Submission[]);
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const toggleRead = async (s: Submission) => {
+    const { error } = await supabase
+      .from("contact_submissions")
+      .update({ read: !s.read })
+      .eq("id", s.id);
+    if (error) return toast.error(error.message);
+    setItems((prev) => prev.map((x) => (x.id === s.id ? { ...x, read: !s.read } : x)));
+  };
+
+  const remove = async (s: Submission) => {
+    if (!confirm(`Delete message from ${s.name}?`)) return;
+    const { error } = await supabase.from("contact_submissions").delete().eq("id", s.id);
+    if (error) return toast.error(error.message);
+    setItems((prev) => prev.filter((x) => x.id !== s.id));
+    toast.success("Deleted");
+  };
+
+  const unread = items.filter((i) => !i.read).length;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h2 className="font-display text-2xl font-bold">Inbox ({items.length})</h2>
+        <p className="text-sm text-muted-foreground">
+          {unread > 0 ? `${unread} unread` : "All caught up"} — contact form submissions from your site.
+        </p>
+      </div>
+      {items.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border bg-card/30 p-12 text-center text-sm text-muted-foreground">
+          No messages yet. Submissions from the contact form will appear here.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {items.map((s) => (
+            <div
+              key={s.id}
+              className={`rounded-xl border p-5 transition-colors ${
+                s.read ? "border-border bg-card/40" : "border-primary/40 bg-card/70"
+              }`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {!s.read && <span className="h-2 w-2 rounded-full bg-primary" />}
+                    <span className="font-display font-semibold">{s.name}</span>
+                    <span className="rounded-full border border-border px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
+                      {s.need}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(s.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                  <a
+                    href={`mailto:${s.email}?subject=Re: Your enquiry to NorthVave`}
+                    className="mt-1 inline-flex items-center gap-1.5 text-xs text-primary hover:underline"
+                  >
+                    <Mail className="h-3 w-3" /> {s.email}
+                  </a>
+                  <p className="mt-3 whitespace-pre-wrap text-sm text-foreground/90">{s.message}</p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    onClick={() => toggleRead(s)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:border-primary/60"
+                  >
+                    <Check className="h-3.5 w-3.5" /> {s.read ? "Mark unread" : "Mark read"}
+                  </button>
+                  <button
+                    onClick={() => remove(s)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 px-3 py-1.5 text-xs text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
